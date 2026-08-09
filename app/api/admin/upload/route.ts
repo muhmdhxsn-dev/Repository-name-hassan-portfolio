@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { requireAdminApi } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

@@ -11,5 +11,8 @@ prisma/dev.db
 *.sqlite
 *.sqlite3
 
+# One-time database migration
+prisma/migrate-sqlite-to-neon.ts
+
 # TypeScript build cache
 *.tsbuildinfo

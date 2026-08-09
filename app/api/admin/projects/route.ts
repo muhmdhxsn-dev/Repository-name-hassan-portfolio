@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const list = await prisma.project.findMany({
       orderBy: { displayOrder: "asc" },
@@ -18,6 +22,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const data = await request.json();
     const count = await prisma.project.count();
@@ -46,6 +53,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const data = await request.json();
     const { id, ...updateData } = data;
@@ -86,6 +96,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {

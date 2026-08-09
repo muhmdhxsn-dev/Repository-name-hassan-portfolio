@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const hero = await prisma.heroContent.findFirst();
     if (!hero) {
@@ -24,6 +28,9 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const unauthorized = await requireAdminApi(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const data = await request.json();
     const hero = await prisma.heroContent.findFirst();

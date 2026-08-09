@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { FiGithub, FiLinkedin, FiTwitter, FiArrowUp, FiMail, FiExternalLink } from "react-icons/fi";
+import { HiLockClosed } from "react-icons/hi2";
 import MagneticButton from "./MagneticButton";
 
 export default function Footer({ socialLinks }: { socialLinks?: any[] }) {
@@ -49,6 +51,15 @@ export default function Footer({ socialLinks }: { socialLinks?: any[] }) {
                 {renderIcon(s.platform)}
               </a>
             ))}
+          <Link
+            href="/admin/login"
+            data-hover
+            aria-label="Admin Login"
+            title="Admin Login"
+            className="transition-colors hover:text-white"
+          >
+            <HiLockClosed size={16} />
+          </Link>
         </div>
         <MagneticButton>
           <button

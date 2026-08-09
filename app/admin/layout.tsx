@@ -38,13 +38,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
       if (res.ok) {
-        router.push("/login");
+        router.push("/admin/login");
         router.refresh();
       }
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+
+  if (pathname === "/admin/login") {
+    return children;
+  }
 
   return (
     <div className="min-h-screen bg-[#050816] text-[#f5f6fa] flex">

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { ADMIN_SESSION_COOKIE, verifyAdminToken } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -10,10 +10,21 @@ export async function middleware(request: NextRequest) {
 
   if (isAdminPath || isAdminApiPath) {
     if (pathname === "/admin/login" || pathname === "/login") {
+      const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+      if (token) {
+        try {
+          await verifyAdminToken(token);
+          return NextResponse.redirect(new URL("/admin", request.url));
+        } catch {
+          const response = NextResponse.next();
+          response.cookies.delete(ADMIN_SESSION_COOKIE);
+          return response;
+        }
+      }
       return NextResponse.next();
     }
 
-    const token = request.cookies.get("admin_session")?.value;
+    const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
 
     if (!token) {
       if (isAdminApiPath) {
@@ -22,25 +33,21 @@ export async function middleware(request: NextRequest) {
           headers: { "Content-Type": "application/json" },
         });
       }
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
 
     try {
-      const secret = new TextEncoder().encode(
-        process.env.JWT_SECRET || "fallback-jwt-secret-key-at-least-32-chars"
-      );
-      await jwtVerify(token, secret);
+      await verifyAdminToken(token);
       return NextResponse.next();
-    } catch (err) {
-      console.error("JWT Verification failed:", err);
+    } catch {
       if (isAdminApiPath) {
         return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
         });
       }
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.delete("admin_session");
+      const response = NextResponse.redirect(new URL("/admin/login", request.url));
+      response.cookies.delete(ADMIN_SESSION_COOKIE);
       return response;
     }
   }

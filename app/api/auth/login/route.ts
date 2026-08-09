@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SignJWT } from "jose";
 import * as bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { ADMIN_SESSION_COOKIE, getJwtSecret } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,9 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sign JWT
-    const secretStr = process.env.JWT_SECRET || "fallback-jwt-secret-key-at-least-32-chars";
-    const secret = new TextEncoder().encode(secretStr);
-    
+    const secret = getJwtSecret();
     const token = await new SignJWT({ userId: user.id, username: user.username })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Set cookie
     const response = NextResponse.json({ success: true });
     response.cookies.set({
-      name: "admin_session",
+      name: ADMIN_SESSION_COOKIE,
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
