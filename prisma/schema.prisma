@@ -1,0 +1,123 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model HeroContent {
+  id             String   @id @default(uuid())
+  name           String
+  title          String
+  subtitle       String
+  typingText     String // Store as a JSON string representing string[]
+  profileImage   String?
+  githubUsername String   @default("octocat")
+  updatedAt      DateTime @updatedAt
+}
+
+model AboutCard {
+  id           String   @id @default(uuid())
+  title        String
+  body         String
+  wide         Boolean  @default(false)
+  displayOrder Int      @default(0)
+}
+
+model Skill {
+  id           String   @id @default(uuid())
+  category     String
+  items        String // Store as a JSON string representing string[]
+  displayOrder Int      @default(0)
+}
+
+model Project {
+  id           String   @id @default(uuid())
+  title        String
+  desc         String
+  tech         String // Store as a JSON string representing string[]
+  features     String // Store as a JSON string representing string[]
+  challenge    String
+  github       String
+  demo         String
+  gradient     String
+  isFeatured   Boolean  @default(false)
+  isPublished  Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model JourneyItem {
+  id           String @id @default(uuid())
+  title        String
+  desc         String
+  displayOrder Int    @default(0)
+}
+
+model Experience {
+  id           String   @id @default(uuid())
+  company      String
+  role         String
+  startDate    String
+  endDate      String?
+  description  String
+  isCurrent    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Education {
+  id           String   @id @default(uuid())
+  institution  String
+  degree       String
+  startDate    String
+  endDate      String?
+  description  String
+  isCurrent    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Certificate {
+  id            String   @id @default(uuid())
+  name          String
+  issuer        String
+  date          String
+  fileUrl       String?
+  credentialUrl String?
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model Resume {
+  id        String   @id @default(uuid())
+  fileUrl   String
+  updatedAt DateTime @updatedAt
+}
+
+model SocialLink {
+  id           String @id @default(uuid())
+  platform     String @unique // e.g. github, linkedin, twitter, email
+  url          String
+  iconName     String
+  displayOrder Int    @default(0)
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
