@@ -8,21 +8,29 @@ export default function Projects({ list }: { list?: any[] }) {
   const activeProjects = list || fallbackProjects;
 
   return (
-    <section id="projects" className="relative z-10 px-6 py-28 md:px-12">
+    <section id="projects" className="relative z-10 px-6 py-24 md:px-12">
+      <div className="rule mb-20" aria-hidden="true" />
+
       <div className="mx-auto max-w-7xl">
-        <RevealOnScroll className="mb-14 flex flex-wrap items-end justify-between gap-4">
+        {/* Header */}
+        <RevealOnScroll className="mb-14 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="section-eyebrow mb-3">03 — PROJECTS</div>
-            <h2 className="font-display text-4xl font-semibold md:text-5xl">Selected work</h2>
+            <div className="section-eyebrow mb-4">03 — PROJECTS</div>
+            <h2 className="section-title">
+              SELECTED<br />
+              WORK
+            </h2>
           </div>
-          <p className="max-w-sm text-muted">
+          <p className="max-w-xs text-sm leading-relaxed text-muted md:text-right">
             Backend services, APIs, and automation tools — built to run unattended.
           </p>
         </RevealOnScroll>
-        <div className="grid gap-7 md:grid-cols-2">
+
+        {/* Grid — 2-col, staggered */}
+        <div className="grid gap-5 md:grid-cols-2">
           {activeProjects.map((p, i) => (
-            <RevealOnScroll key={p.title} delay={i * 0.06}>
-              <ProjectCard project={p} />
+            <RevealOnScroll key={p.title} delay={i * 0.07}>
+              <ProjectCard project={p} index={i} />
             </RevealOnScroll>
           ))}
         </div>
@@ -30,4 +38,3 @@ export default function Projects({ list }: { list?: any[] }) {
     </section>
   );
 }
-

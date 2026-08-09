@@ -31,12 +31,14 @@ export default function Footer({ socialLinks }: { socialLinks?: any[] }) {
   const activeSocials = socialLinks || defaultSocials;
 
   return (
-    <footer className="relative z-10 border-t border-white/10 px-6 py-10 md:px-12">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 text-sm text-muted md:flex-row">
-        <p>© {new Date().getFullYear()} Muhammad Hassan. Built with Python-level attention to detail.</p>
+    <footer className="relative z-10 border-t border-white/[0.05] px-6 py-8 md:px-12">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 text-sm md:flex-row">
+        <p className="risen-text text-[9px] tracking-[0.18em] text-muted/50">
+          &copy; {new Date().getFullYear()} MUHAMMAD HASSAN. BUILT WITH PYTHON-LEVEL ATTENTION TO DETAIL.
+        </p>
         <div className="flex items-center gap-5">
           {activeSocials
-            .filter((s) => s.platform !== "email") // email link is typically shown separately, but we can display it if we want.
+            .filter((s) => s.platform !== "email")
             .map((s) => (
               <a
                 key={s.platform}
@@ -45,7 +47,7 @@ export default function Footer({ socialLinks }: { socialLinks?: any[] }) {
                 rel="noopener noreferrer"
                 data-hover
                 aria-label={s.platform}
-                className="transition-colors hover:text-white"
+                className="text-muted/50 transition-colors hover:text-white"
               >
                 {renderIcon(s.platform)}
               </a>
@@ -56,9 +58,9 @@ export default function Footer({ socialLinks }: { socialLinks?: any[] }) {
             data-hover
             aria-label="Back to top"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="glass flex h-10 w-10 items-center justify-center rounded-full hover:border-accent-2"
+            className="flex h-9 w-9 items-center justify-center rounded-sm border border-white/[0.08] bg-white/[0.03] text-muted/60 transition-all hover:border-accent/30 hover:text-accent"
           >
-            <FiArrowUp />
+            <FiArrowUp size={14} />
           </button>
         </MagneticButton>
       </div>

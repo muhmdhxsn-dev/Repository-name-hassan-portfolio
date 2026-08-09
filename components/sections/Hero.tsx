@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { roles as fallbackRoles, stats as fallbackStats } from "@/lib/data";
 import MagneticButton from "../MagneticButton";
 import RevealOnScroll from "../RevealOnScroll";
 
+/* ─── Typewriter ──────────────────────────────────────────────── */
 function useTypewriter(customRoles?: string[]) {
   const [text, setText] = useState("");
   const activeRoles = customRoles || fallbackRoles;
@@ -23,7 +24,7 @@ function useTypewriter(customRoles?: string[]) {
         setText(word.slice(0, ci));
         if (ci === word.length) {
           deleting = true;
-          timeout = setTimeout(tick, 1300);
+          timeout = setTimeout(tick, 1400);
           return;
         }
       } else {
@@ -34,7 +35,7 @@ function useTypewriter(customRoles?: string[]) {
           ri = (ri + 1) % activeRoles.length;
         }
       }
-      timeout = setTimeout(tick, deleting ? 45 : 85);
+      timeout = setTimeout(tick, deleting ? 42 : 80);
     };
     tick();
     return () => clearTimeout(timeout);
@@ -43,54 +44,140 @@ function useTypewriter(customRoles?: string[]) {
   return text;
 }
 
+/* ─── Counter ─────────────────────────────────────────────────── */
 function Counter({ value, suffix }: { value: number; suffix: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) {
-      setCount(value);
-      return;
-    }
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setCount(value);
-      return;
-    }
+    if (!node) { setCount(value); return; }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setCount(value); return; }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-
         const step = Math.max(1, Math.round(value / 40));
         let cur = 0;
         const interval = window.setInterval(() => {
           cur += step;
-          if (cur >= value) {
-            cur = value;
-            window.clearInterval(interval);
-          }
+          if (cur >= value) { cur = value; window.clearInterval(interval); }
           setCount(cur);
         }, 20);
-
         observer.disconnect();
       },
       { threshold: 0.4 }
     );
-
     observer.observe(node);
     return () => observer.disconnect();
   }, [value]);
 
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
+/* ─── Star Canvas ─────────────────────────────────────────────── */
+function StarCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const rafRef = useRef<number>(0);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    mouseRef.current = {
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
+    };
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Create stars
+    const NUM = 120;
+    type Star = { x: number; y: number; r: number; opacity: number; speed: number; px: number; py: number };
+    const stars: Star[] = Array.from({ length: NUM }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.2 + 0.2,
+      opacity: Math.random() * 0.55 + 0.1,
+      speed: Math.random() * 0.00008 + 0.00002,
+      px: 0,
+      py: 0,
+    }));
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", handleMouseMove);
+
+    let last = performance.now();
+    const draw = (now: number) => {
+      const dt = now - last;
+      last = now;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+
+      stars.forEach((s) => {
+        // Slow upward drift + subtle mouse parallax
+        s.y -= s.speed * dt;
+        if (s.y < 0) { s.y = 1; s.x = Math.random(); }
+
+        const parallaxX = (mx - 0.5) * 0.012 * s.r;
+        const parallaxY = (my - 0.5) * 0.012 * s.r;
+
+        const screenX = (s.x + parallaxX) * canvas.width;
+        const screenY = (s.y + parallaxY) * canvas.height;
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 230, 240, ${s.opacity})`;
+        ctx.fill();
+      });
+
+      // Occasional bigger glowing stars
+      if (Math.random() < 0.002) {
+        const gx = Math.random() * canvas.width;
+        const gy = Math.random() * canvas.height;
+        const gr = Math.random() * 1.5 + 0.5;
+        const gradient = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr * 4);
+        gradient.addColorStop(0, "rgba(125,223,198,0.5)");
+        gradient.addColorStop(1, "rgba(125,223,198,0)");
+        ctx.beginPath();
+        ctx.arc(gx, gy, gr * 4, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMouseMove]);
+
   return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
+    <canvas
+      ref={canvasRef}
+      className="star-canvas"
+      aria-hidden="true"
+    />
   );
 }
 
+/* ─── Hero ────────────────────────────────────────────────────── */
 export default function Hero({ data, stats }: { data?: any; stats?: any }) {
   const activeRoles = data?.typingText || fallbackRoles;
   const typed = useTypewriter(activeRoles);
@@ -99,154 +186,131 @@ export default function Hero({ data, stats }: { data?: any; stats?: any }) {
   const name = data?.name || "Muhammad Hassan";
   const firstName = name.split(" ")[0] || "Muhammad";
   const lastName = name.substring(firstName.length).trim() || "Hassan";
-  const subtitle = data?.subtitle || "I design and ship backend systems that don't fall over — Python services, REST & async APIs, and automation pipelines that remove the boring parts of other people's jobs. Currently pointing that same discipline at AI engineering.";
+  const subtitle =
+    data?.subtitle ||
+    "I design and ship backend systems that don't fall over — Python services, REST & async APIs, and automation pipelines that remove the boring parts of other people's jobs. Currently pointing that same discipline at AI engineering.";
   const title = data?.title || "Available for backend & automation roles";
   const resumeUrl = data?.resumeUrl || "/resume.pdf";
 
   return (
     <section
       id="home"
-      className="relative z-10 flex min-h-screen items-center px-6 pb-20 pt-32 md:px-12"
+      className="relative z-10 flex min-h-[min(860px,100vh)] items-center overflow-hidden px-6 pb-20 pt-28 md:px-12"
     >
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-16 lg:grid-cols-[1.15fr_.85fr]">
-        <div>
-          <RevealOnScroll className="mb-6 flex items-center gap-3">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-            </span>
-            <span className="font-mono text-xs uppercase tracking-[.3em] text-muted">
-              {title}
-            </span>
-          </RevealOnScroll>
+      {/* Deep space background gradient */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 60% at 50% -5%, rgba(79,195,161,0.08) 0%, transparent 65%), " +
+            "radial-gradient(ellipse 60% 50% at 80% 80%, rgba(108,142,191,0.06) 0%, transparent 65%), " +
+            "#03060f",
+        }}
+        aria-hidden="true"
+      />
 
-          <RevealOnScroll delay={0.05}>
-            <h1 className="font-display text-[13vw] font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl">
-              {firstName}
-              {lastName && (
-                <>
-                  <br />
-                  <span className="grad-text">{lastName}</span>
-                </>
-              )}
-            </h1>
-          </RevealOnScroll>
+      {/* Particle star canvas */}
+      <StarCanvas />
 
-          <RevealOnScroll delay={0.1} className="mt-6 flex items-center gap-2 font-mono text-xl text-muted md:text-2xl">
-            <span>&gt;</span>
-            <span className="text-white">{typed}</span>
-            <span className="ml-0.5 inline-block h-[1.1em] w-[2px] animate-blink bg-accent-2 align-middle" />
-          </RevealOnScroll>
+      {/* Subtle horizontal scan lines */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.02]"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,1) 2px, rgba(255,255,255,1) 3px)",
+          backgroundSize: "100% 6px",
+        }}
+        aria-hidden="true"
+      />
 
-          <RevealOnScroll delay={0.15}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-              {subtitle}
-            </p>
-          </RevealOnScroll>
-
-          <RevealOnScroll delay={0.2} className="mt-9 flex flex-wrap gap-4">
-            <MagneticButton>
-              <a
-                href="#projects"
-                data-hover
-                className="rounded-full bg-accent px-6 py-3.5 text-sm font-medium shadow-glow transition-colors hover:bg-accent-2"
-              >
-                View Projects
-              </a>
-            </MagneticButton>
-            <MagneticButton>
-              <a
-                href={resumeUrl}
-                data-hover
-                download
-                className="rounded-full border border-white/15 px-6 py-3.5 text-sm font-medium transition-colors hover:border-white/40"
-              >
-                Download Resume
-              </a>
-            </MagneticButton>
-            <MagneticButton>
-              <a
-                href="#contact"
-                data-hover
-                className="rounded-full border border-white/15 px-6 py-3.5 text-sm font-medium transition-colors hover:border-white/40"
-              >
-                Contact Me
-              </a>
-            </MagneticButton>
-          </RevealOnScroll>
-
-          <RevealOnScroll delay={0.25} className="mt-12 grid max-w-md grid-cols-3 gap-6 text-sm">
-            {currentStats.map((s: any) => (
-              <div key={s.label}>
-                <div className="font-display text-2xl font-semibold">
-                  <Counter value={s.value} suffix={s.suffix} />
-                </div>
-                <div className="mt-1 text-muted">{s.label}</div>
-              </div>
-            ))}
-          </RevealOnScroll>
-        </div>
-
-        <RevealOnScroll delay={0.1} className="relative flex h-[420px] items-center justify-center md:h-[520px]">
-          <div className="glass absolute inset-0 rounded-[2rem]" />
-          <svg viewBox="0 0 320 420" className="relative h-full w-full p-8" fill="none">
-            <defs>
-              <linearGradient id="pipe" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366F1" />
-                <stop offset="100%" stopColor="#8B5CF6" />
-              </linearGradient>
-            </defs>
-            <g className="font-mono">
-              <circle cx="160" cy="50" r="26" fill="rgba(99,102,241,.15)" stroke="#6366F1" strokeWidth="1.5" />
-              <text x="160" y="55" textAnchor="middle" fill="#fff" fontSize="10">client</text>
-
-              <line x1="160" y1="76" x2="160" y2="118" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-              <rect x="105" y="118" width="110" height="46" rx="10" fill="rgba(59,130,246,.12)" stroke="#3B82F6" strokeWidth="1.5" />
-              <text x="160" y="137" textAnchor="middle" fill="#fff" fontSize="10">FastAPI</text>
-              <text x="160" y="152" textAnchor="middle" fill="#8B93A7" fontSize="9">/v1/endpoint</text>
-
-              <line x1="160" y1="164" x2="160" y2="206" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-              <rect x="60" y="206" width="90" height="46" rx="10" fill="rgba(139,92,246,.12)" stroke="#8B5CF6" strokeWidth="1.5" />
-              <text x="105" y="225" textAnchor="middle" fill="#fff" fontSize="10">Worker</text>
-              <text x="105" y="240" textAnchor="middle" fill="#8B93A7" fontSize="9">Celery</text>
-
-              <rect x="170" y="206" width="90" height="46" rx="10" fill="rgba(99,102,241,.12)" stroke="#6366F1" strokeWidth="1.5" />
-              <text x="215" y="225" textAnchor="middle" fill="#fff" fontSize="10">Postgres</text>
-              <text x="215" y="240" textAnchor="middle" fill="#8B93A7" fontSize="9">database</text>
-
-              <line x1="105" y1="164" x2="105" y2="206" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-              <line x1="215" y1="164" x2="215" y2="206" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-
-              <line x1="160" y1="290" x2="160" y2="330" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-              <rect x="105" y="330" width="110" height="46" rx="10" fill="rgba(59,130,246,.12)" stroke="#3B82F6" strokeWidth="1.5" />
-              <text x="160" y="349" textAnchor="middle" fill="#fff" fontSize="10">Response</text>
-              <text x="160" y="364" textAnchor="middle" fill="#8B93A7" fontSize="9">200 OK · JSON</text>
-
-              <line x1="160" y1="252" x2="160" y2="290" stroke="url(#pipe)" strokeWidth="2" strokeDasharray="4 4" />
-            </g>
-            <circle r="4.5" fill="#fff">
-              <animateMotion
-                dur="3.4s"
-                repeatCount="indefinite"
-                path="M160,76 L160,118 M160,164 L160,206 M105,164 L105,206 M215,164 L215,206 M160,290 L160,330"
-              />
-            </circle>
-          </svg>
-          <span className="glass absolute -bottom-3 -right-3 rounded-full px-3 py-1.5 font-mono text-[10px] text-muted md:-right-4 md:bottom-6">
-            request → automation → response
+      {/* Content */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
+        {/* Status badge */}
+        <RevealOnScroll className="mb-8 flex items-center gap-3">
+          <span className="live-dot" aria-hidden="true" />
+          <span className="risen-text text-[10px] tracking-[0.2em] text-muted">
+            {title}
           </span>
+        </RevealOnScroll>
+
+        {/* Name — primary hero element */}
+        <RevealOnScroll delay={0.05}>
+          <h1 className="risen-text text-[clamp(3.2rem,9vw,7.5rem)] leading-[0.95] text-white">
+            <span className="block">{firstName.toUpperCase()}</span>
+            {lastName && (
+              <span className="block grad-text">{lastName.toUpperCase()}</span>
+            )}
+          </h1>
+        </RevealOnScroll>
+
+        {/* Role typewriter */}
+        <RevealOnScroll delay={0.12} className="mt-6 flex items-center gap-2">
+          <span className="font-mono text-xs text-accent/60 select-none">&gt;</span>
+          <span className="font-mono text-sm text-accent md:text-base">{typed}</span>
+          <span className="inline-block h-[1em] w-[2px] bg-accent align-middle opacity-80 animate-blink" />
+        </RevealOnScroll>
+
+        {/* Description */}
+        <RevealOnScroll delay={0.18} className="mt-6 max-w-xl">
+          <p className="text-sm leading-relaxed text-muted md:text-base">{subtitle}</p>
+        </RevealOnScroll>
+
+        {/* CTA buttons */}
+        <RevealOnScroll delay={0.24} className="mt-8 flex flex-wrap gap-3">
+          <MagneticButton>
+            <a
+              href="#projects"
+              data-hover
+              className="risen-text inline-block rounded-sm bg-accent px-6 py-3 text-[11px] tracking-[0.2em] text-bg shadow-glow transition-all duration-300 hover:bg-accent-2 hover:shadow-[0_0_30px_-8px_rgba(79,195,161,0.8)]"
+            >
+              VIEW PROJECTS
+            </a>
+          </MagneticButton>
+          <MagneticButton>
+            <a
+              href={resumeUrl}
+              data-hover
+              download
+              className="risen-text inline-block rounded-sm border border-white/15 px-6 py-3 text-[11px] tracking-[0.2em] text-white/70 transition-all duration-300 hover:border-accent/50 hover:text-white"
+            >
+              DOWNLOAD CV
+            </a>
+          </MagneticButton>
+          <MagneticButton>
+            <a
+              href="#contact"
+              data-hover
+              className="risen-text inline-block rounded-sm border border-white/15 px-6 py-3 text-[11px] tracking-[0.2em] text-white/70 transition-all duration-300 hover:border-accent/50 hover:text-white"
+            >
+              CONTACT
+            </a>
+          </MagneticButton>
+        </RevealOnScroll>
+
+        {/* Stats row */}
+        <RevealOnScroll delay={0.3} className="mt-14 flex flex-wrap gap-10 border-t border-white/[0.06] pt-8">
+          {currentStats.map((s: any) => (
+            <div key={s.label} className="group">
+              <div className="risen-text text-2xl text-white md:text-3xl">
+                <Counter value={s.value} suffix={s.suffix} />
+              </div>
+              <div className="mt-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
+                {s.label}
+              </div>
+            </div>
+          ))}
         </RevealOnScroll>
       </div>
 
+      {/* Scroll indicator */}
       <a
         href="#about"
         data-hover
-        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-xs text-muted md:flex"
+        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted/60 transition-opacity hover:text-muted md:flex"
+        aria-label="Scroll to about section"
       >
         <span>scroll</span>
-        <span className="h-8 w-px bg-gradient-to-b from-accent to-transparent" />
+        <span className="h-10 w-px bg-gradient-to-b from-accent/60 to-transparent" />
       </a>
     </section>
   );
 }
-

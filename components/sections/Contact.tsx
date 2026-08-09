@@ -71,81 +71,96 @@ export default function Contact({ socialLinks, hero }: { socialLinks?: any[]; he
   };
 
   return (
-    <section id="contact" className="relative z-10 px-6 py-28 md:px-12">
-      <div className="mx-auto grid max-w-5xl items-start gap-12 md:grid-cols-2">
+    <section id="contact" className="relative z-10 px-6 py-24 md:px-12">
+      <div className="rule mb-20" aria-hidden="true" />
+      <div className="mx-auto max-w-5xl">
+        <div className="grid items-start gap-12 md:grid-cols-2">
         <RevealOnScroll>
-          <div className="section-eyebrow mb-3">07 — CONTACT</div>
-          <h2 className="mb-6 font-display text-4xl font-semibold md:text-5xl">
-            Let&apos;s build something reliable.
+          <div className="section-eyebrow mb-4">07 — CONTACT</div>
+          <h2 className="section-title mb-6">
+            LET&apos;S BUILD<br />
+            SOMETHING<br />
+            RELIABLE.
           </h2>
-          <p className="mb-8 max-w-md leading-relaxed text-muted">
+          <p className="mb-10 max-w-xs text-sm leading-relaxed text-muted">
             Open to backend, automation, and API-focused roles — and always happy to talk about
             early-stage AI engineering work.
           </p>
-          <div className="flex flex-col gap-4 text-sm">
-            <a href={emailUrl} data-hover className="flex items-center gap-3 transition-colors hover:text-accent-2">
-              <span className="glass flex h-9 w-9 items-center justify-center rounded-full"><FiMail /></span>
-              {emailText}
+          <div className="flex flex-col gap-4">
+            <a href={emailUrl} data-hover className="group flex items-center gap-4 transition-colors hover:text-accent">
+              <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-white/[0.08] bg-white/[0.03] transition-colors group-hover:border-accent/30">
+                <FiMail size={14} />
+              </span>
+              <span className="font-mono text-sm text-muted transition-colors group-hover:text-accent">{emailText}</span>
             </a>
-            <a href={githubUrl} target="_blank" rel="noopener noreferrer" data-hover className="flex items-center gap-3 transition-colors hover:text-accent-2">
-              <span className="glass flex h-9 w-9 items-center justify-center rounded-full"><FiGithub /></span>
-              {githubText}
+            <a href={githubUrl} target="_blank" rel="noopener noreferrer" data-hover className="group flex items-center gap-4 transition-colors hover:text-accent">
+              <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-white/[0.08] bg-white/[0.03] transition-colors group-hover:border-accent/30">
+                <FiGithub size={14} />
+              </span>
+              <span className="font-mono text-sm text-muted transition-colors group-hover:text-accent">{githubText}</span>
             </a>
-            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" data-hover className="flex items-center gap-3 transition-colors hover:text-accent-2">
-              <span className="glass flex h-9 w-9 items-center justify-center rounded-full"><FiLinkedin /></span>
-              {linkedinText}
+            <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" data-hover className="group flex items-center gap-4 transition-colors hover:text-accent">
+              <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-white/[0.08] bg-white/[0.03] transition-colors group-hover:border-accent/30">
+                <FiLinkedin size={14} />
+              </span>
+              <span className="font-mono text-sm text-muted transition-colors group-hover:text-accent">{linkedinText}</span>
             </a>
           </div>
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.1}>
-          <Card as="form" onSubmit={onSubmit} className="space-y-5 p-8" noValidate>
+          <form onSubmit={onSubmit} className="space-y-5 rounded-sm border border-white/[0.06] bg-white/[0.02] p-7" noValidate>
             <div>
-              <label htmlFor="cf-name" className="font-mono text-xs uppercase tracking-wider text-muted">Name</label>
+              <label htmlFor="cf-name" className="risen-text text-[9px] tracking-[0.2em] text-muted/70">NAME</label>
               <input
                 id="cf-name"
                 value={values.name}
                 onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm transition-colors focus:border-accent-2"
+                className="mt-2 w-full rounded-sm border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-muted/40 transition-colors focus:border-accent/50 focus:outline-none"
                 placeholder="Your name"
                 style={errors.name ? { borderColor: "#f87171" } : undefined}
               />
               {errors.name && <p className="mt-1 text-xs text-red-400">Please enter your name.</p>}
             </div>
             <div>
-              <label htmlFor="cf-email" className="font-mono text-xs uppercase tracking-wider text-muted">Email</label>
+              <label htmlFor="cf-email" className="risen-text text-[9px] tracking-[0.2em] text-muted/70">EMAIL</label>
               <input
                 id="cf-email"
                 type="email"
                 value={values.email}
                 onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm transition-colors focus:border-accent-2"
+                className="mt-2 w-full rounded-sm border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-muted/40 transition-colors focus:border-accent/50 focus:outline-none"
                 placeholder="you@company.com"
                 style={errors.email ? { borderColor: "#f87171" } : undefined}
               />
               {errors.email && <p className="mt-1 text-xs text-red-400">Please enter a valid email.</p>}
             </div>
             <div>
-              <label htmlFor="cf-msg" className="font-mono text-xs uppercase tracking-wider text-muted">Message</label>
+              <label htmlFor="cf-msg" className="risen-text text-[9px] tracking-[0.2em] text-muted/70">MESSAGE</label>
               <textarea
                 id="cf-msg"
                 rows={4}
                 value={values.message}
                 onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm transition-colors focus:border-accent-2"
+                className="mt-2 w-full rounded-sm border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-muted/40 transition-colors focus:border-accent/50 focus:outline-none resize-none"
                 placeholder="Tell me about the role or project…"
                 style={errors.message ? { borderColor: "#f87171" } : undefined}
               />
               {errors.message && <p className="mt-1 text-xs text-red-400">Please enter a message.</p>}
             </div>
             <MagneticButton className="w-full">
-              <button type="submit" disabled={submitting} data-hover className="w-full rounded-full bg-accent px-6 py-3.5 text-sm font-medium transition-colors hover:bg-accent-2 disabled:opacity-50">
-                {submitting ? "Sending..." : "Send Message"}
+              <button
+                type="submit"
+                disabled={submitting}
+                data-hover
+                className="risen-text w-full rounded-sm bg-accent px-6 py-3.5 text-[11px] tracking-[0.2em] text-bg shadow-glow transition-all duration-300 hover:bg-accent-2 disabled:opacity-50 hover:shadow-[0_0_30px_-8px_rgba(79,195,161,0.8)]"
+              >
+                {submitting ? "SENDING..." : "SEND MESSAGE"}
               </button>
             </MagneticButton>
             {success && (
-              <p className="text-sm text-emerald-400">
-                Thanks — message captured in database.
+              <p className="risen-text text-[10px] tracking-[0.15em] text-emerald-400">
+                MESSAGE RECEIVED — TALK SOON.
               </p>
             )}
             {submitError && (
@@ -153,8 +168,9 @@ export default function Contact({ socialLinks, hero }: { socialLinks?: any[]; he
                 {submitError}
               </p>
             )}
-          </Card>
+          </form>
         </RevealOnScroll>
+        </div>
       </div>
     </section>
   );

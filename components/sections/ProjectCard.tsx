@@ -1,75 +1,85 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { FiGithub, FiExternalLink } from "react-icons/fi";
 import type { Project } from "@/lib/data";
-import { Card } from "../ui/card";
 
-export default function ProjectCard({ project }: { project: Project }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [style, setStyle] = useState<React.CSSProperties>({});
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    const rx = ((e.clientY - r.top) / r.height - 0.5) * -6;
-    const ry = ((e.clientX - r.left) / r.width - 0.5) * 6;
-    setStyle({
-      transform: `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`,
-    });
-  };
-  const onMouseLeave = () => setStyle({ transform: "none" });
+export default function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const isEven = index % 2 === 0;
 
   return (
-    <Card
-      ref={ref}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={style}
-      className="overflow-hidden transition-transform duration-150 ease-out"
+    <article
+      className="group relative overflow-hidden rounded-sm border border-white/[0.06] bg-white/[0.02] transition-all duration-500 hover:border-accent/20 hover:bg-white/[0.04] hover:shadow-card"
     >
+      {/* Top gradient strip */}
       <div
-        className="flex h-40 items-center justify-center"
+        className="h-1 w-full transition-opacity duration-300 opacity-50 group-hover:opacity-100"
         style={{ background: project.gradient }}
-      >
-        <span className="font-display text-2xl font-semibold text-white/90">
-          {project.title}
-        </span>
+        aria-hidden="true"
+      />
+
+      {/* Number badge */}
+      <div className="absolute right-6 top-6 risen-text text-[2.5rem] font-risen leading-none text-white/[0.04] transition-all duration-500 group-hover:text-white/[0.07] select-none">
+        {String(index + 1).padStart(2, "0")}
       </div>
-      <div className="p-6">
-        <p className="mb-4 text-sm leading-relaxed text-muted">{project.desc}</p>
-        <div className="mb-4 flex flex-wrap gap-2">
+
+      <div className="p-6 md:p-8">
+        {/* Title */}
+        <h3 className="risen-text mb-3 text-base tracking-[0.1em] text-white transition-colors duration-300 group-hover:text-accent-2 md:text-lg">
+          {project.title.toUpperCase()}
+        </h3>
+
+        {/* Description */}
+        <p className="mb-5 max-w-prose text-sm leading-relaxed text-muted">
+          {project.desc}
+        </p>
+
+        {/* Tech tags */}
+        <div className="mb-6 flex flex-wrap gap-2">
           {project.tech.map((t) => (
             <span
               key={t}
-              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] text-muted"
+              className="rounded-sm border border-white/[0.07] bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted/80 transition-colors hover:border-accent/25 hover:text-accent/80"
             >
               {t}
             </span>
           ))}
         </div>
-        <details className="mb-4 text-sm text-muted">
-          <summary className="cursor-pointer text-white/80 hover:text-white" data-hover>
-            Key features &amp; challenges
-          </summary>
-          <ul className="mt-3 list-inside list-disc space-y-1">
-            {project.features.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-          <p className="mt-3">
-            <span className="text-white/80">Challenge solved:</span> {project.challenge}
-          </p>
-        </details>
-        <div className="flex gap-4 text-sm">
-          <a href={project.github} data-hover className="flex items-center gap-1.5 transition-colors hover:text-accent-2">
-            <FiGithub /> Source
+
+        {/* Features */}
+        <ul className="mb-6 space-y-1.5 border-l border-accent/20 pl-4">
+          {project.features.map((f) => (
+            <li key={f} className="text-xs leading-relaxed text-muted/80">
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        {/* Challenge */}
+        <div className="mb-6 rounded-sm bg-accent/[0.04] p-3 text-xs leading-relaxed text-muted/80 border border-accent/10">
+          <span className="risen-text text-[9px] tracking-[0.15em] text-accent/70">CHALLENGE SOLVED — </span>
+          {project.challenge}
+        </div>
+
+        {/* Links */}
+        <div className="flex items-center gap-5 pt-2 border-t border-white/[0.05]">
+          <a
+            href={project.github}
+            data-hover
+            className="risen-text flex items-center gap-2 text-[10px] tracking-[0.15em] text-muted transition-colors hover:text-white"
+          >
+            <FiGithub size={13} />
+            SOURCE
           </a>
-          <a href={project.demo} data-hover className="flex items-center gap-1.5 transition-colors hover:text-accent-2">
-            <FiExternalLink /> Live demo
+          <a
+            href={project.demo}
+            data-hover
+            className="risen-text flex items-center gap-2 text-[10px] tracking-[0.15em] text-muted transition-colors hover:text-white"
+          >
+            <FiExternalLink size={13} />
+            LIVE DEMO
           </a>
         </div>
       </div>
-    </Card>
+    </article>
   );
 }

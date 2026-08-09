@@ -17,7 +17,7 @@ const GithubDashboard = dynamic(
 
 function SectionSkeleton({ label }: { label: string }) {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-28 md:px-12">
+    <div className="mx-auto max-w-7xl px-6 py-24 md:px-12">
       <div className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/5" />
       <p className="mt-3 font-mono text-xs text-muted">{label}</p>
     </div>

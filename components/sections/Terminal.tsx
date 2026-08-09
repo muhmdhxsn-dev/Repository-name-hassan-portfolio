@@ -42,41 +42,45 @@ export default function Terminal({ commands }: { commands?: Record<string, strin
   };
 
   return (
-    <section id="terminal" className="relative z-10 px-6 py-28 md:px-12">
+    <section id="terminal" className="relative z-10 px-6 py-24 md:px-12">
+      <div className="rule mb-20" aria-hidden="true" />
       <div className="mx-auto max-w-5xl">
-        <RevealOnScroll className="mb-10">
-          <div className="section-eyebrow mb-3">04 — TERMINAL</div>
-          <h2 className="font-display text-4xl font-semibold md:text-5xl">
-            Try the CLI version of me
-          </h2>
-          <p className="mt-3 text-muted">
-            Type <span className="font-mono text-white">help</span> to see available commands.
+        <RevealOnScroll className="mb-14 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="section-eyebrow mb-4">04 — TERMINAL</div>
+            <h2 className="section-title">
+              CLI VERSION<br />
+              OF ME
+            </h2>
+          </div>
+          <p className="max-w-xs text-sm leading-relaxed text-muted md:text-right">
+            Type <span className="font-mono text-accent">help</span> to see available commands.
           </p>
         </RevealOnScroll>
 
         <RevealOnScroll
           delay={0.1}
-          className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_40px_100px_-40px_rgba(99,102,241,.5)]"
+          className="overflow-hidden rounded-sm border border-white/[0.08] shadow-[0_24px_80px_-40px_rgba(79,195,161,0.18)]"
         >
-          <div className="flex items-center gap-2 border-b border-white/10 bg-[#0b0f1f] px-4 py-3">
-            <span className="h-3 w-3 rounded-full bg-[#FF5F56]" />
-            <span className="h-3 w-3 rounded-full bg-[#FFBD2E]" />
-            <span className="h-3 w-3 rounded-full bg-[#27C93F]" />
-            <span className="ml-3 font-mono text-xs text-muted">hassan@portfolio: ~</span>
+          <div className="flex items-center gap-2 border-b border-white/[0.06] bg-[#06090f] px-4 py-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]/80" />
+            <span className="ml-3 risen-text text-[9px] tracking-[0.15em] text-muted/60">HASSAN@PORTFOLIO ~</span>
           </div>
           <div
             ref={bodyRef}
             role="log"
             aria-live="polite"
-            className="h-[340px] overflow-y-auto bg-[#080b17] p-5 font-mono text-sm"
+            className="h-[340px] overflow-y-auto bg-[#03060f] p-5 font-mono text-sm text-muted leading-relaxed"
             onClick={() => document.getElementById("term-input")?.focus()}
           >
             {lines.map((l, i) => (
               <div key={i} className="mb-2 whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: l.html }} />
             ))}
           </div>
-          <div className="flex items-center gap-2 border-t border-white/10 bg-[#080b17] px-5 py-4">
-            <span className="font-mono text-accent-2">hassan@portfolio:~$</span>
+          <div className="flex items-center gap-2 border-t border-white/[0.06] bg-[#03060f] px-5 py-4">
+            <span className="font-mono text-xs text-accent">hassan@portfolio:~$</span>
             <input
               id="term-input"
               type="text"
@@ -92,7 +96,7 @@ export default function Terminal({ commands }: { commands?: Record<string, strin
                 }
               }}
               placeholder="type a command…"
-              className="flex-1 bg-transparent font-mono text-sm text-white outline-none placeholder:text-muted"
+              className="flex-1 bg-transparent font-mono text-sm text-white/90 outline-none placeholder:text-muted/40"
             />
           </div>
         </RevealOnScroll>

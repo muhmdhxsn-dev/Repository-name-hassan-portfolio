@@ -2,17 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: #050816;
-  --card: #111827;
-  --accent: #6366f1;
-  --accent-2: #3b82f6;
-  --purple: #8b5cf6;
-  --muted: #8b93a7;
-  --border: rgba(148, 163, 184, 0.12);
+/* ─── RISEN custom font (local Orbitron Bold) ───────────────────────── */
+@font-face {
+  font-family: "RISEN";
+  src: url("/fonts/risen.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
-* {
+/* ─── Design tokens ─────────────────────────────────────────────────── */
+:root {
+  --bg: #03060f;
+  --card: #080e1a;
+  --accent: #4FC3A1;
+  --accent-2: #7ddfc6;
+  --purple: #6C8EBF;
+  --muted: #7a8a9e;
+  --border: rgba(79, 195, 161, 0.12);
+
+  /* font vars */
+  --font-risen: "RISEN";
+}
+
+/* ─── Base reset ────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
@@ -22,60 +36,27 @@ html {
 
 body {
   background: var(--bg);
-  color: #f5f6fa;
+  color: #d6e4eb;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (pointer: fine) {
-  body.cursor-ready {
-    cursor: none;
-  }
-}
-
+/* ─── Selection ─────────────────────────────────────────────────────── */
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: #000;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
+/* ─── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(var(--accent), var(--purple));
   border-radius: 8px;
 }
 
-.grad-text {
-  background: linear-gradient(90deg, #fff, var(--accent-2) 45%, var(--purple));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.glass {
-  background: rgba(17, 24, 39, 0.55);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-}
-
-.section-eyebrow {
-  letter-spacing: 0.35em;
-  font-size: 11px;
-  color: var(--accent-2);
-  font-family: var(--font-jetbrains), monospace;
-}
-
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.35;
-  pointer-events: none;
-}
-
+/* ─── Focus ─────────────────────────────────────────────────────────── */
 input:focus,
 textarea:focus,
 button:focus-visible,
@@ -84,24 +65,146 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
+/* ─── Custom pointer cursor ─────────────────────────────────────────── */
+@media (pointer: fine) {
+  body.cursor-ready { cursor: none; }
+}
+
+/* ─── RISEN typography utilities ────────────────────────────────────── */
+.font-risen {
+  font-family: var(--font-risen), sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.risen-text {
+  font-family: var(--font-risen), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Gradient text ─────────────────────────────────────────────────── */
+.grad-text {
+  background: linear-gradient(135deg, #ffffff 20%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.grad-text-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glass panel ───────────────────────────────────────────────────── */
+.glass {
+  background: rgba(8, 14, 26, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+}
+
+/* ─── Section eyebrow / labels ──────────────────────────────────────── */
+.section-eyebrow {
+  font-family: var(--font-risen), sans-serif;
+  letter-spacing: 0.2em;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+/* ─── Section titles ────────────────────────────────────────────────── */
+.section-title {
+  font-family: var(--font-risen), sans-serif;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  text-transform: uppercase;
+  line-height: 1.08;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+/* ─── Glowing dot ───────────────────────────────────────────────────── */
+.live-dot {
+  position: relative;
+  display: inline-flex;
+  height: 8px;
+  width: 8px;
+}
+.live-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--accent);
+  animation: ping-dot 2s cubic-bezier(0,0,0.2,1) infinite;
+}
+.live-dot::after {
+  content: "";
+  position: relative;
+  display: inline-flex;
+  border-radius: 9999px;
+  height: 8px;
+  width: 8px;
+  background: var(--accent);
+}
+
+@keyframes ping-dot {
+  75%, 100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ─── Star / particle canvas background ─────────────────────────────── */
+.star-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Cosmic background gradient ────────────────────────────────────── */
+.space-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79, 195, 161, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(108, 142, 191, 0.05) 0%, transparent 70%),
+    var(--bg);
+}
+
+/* ─── Thin horizontal rule ──────────────────────────────────────────── */
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  border: none;
+}
+
+/* ─── Blob ──────────────────────────────────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* ─── Loader progress ───────────────────────────────────────────────── */
 @keyframes loadProgress {
   from { width: 0%; }
   to { width: 100%; }
 }
 
+/* ─── Fade-in utility ───────────────────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: fadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ─── Reduced motion ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

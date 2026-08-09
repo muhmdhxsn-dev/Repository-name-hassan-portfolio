@@ -46,7 +46,7 @@ export default function RevealOnScroll({
       style={{ animationDelay: `${delay}s` }}
       className={cn(
         className,
-        "opacity-0 translate-y-2",
+        "opacity-0 translate-y-3",
         visible && "opacity-100 translate-y-0 animate-fade-in"
       )}
     >
