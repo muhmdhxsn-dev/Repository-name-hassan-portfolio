@@ -26,9 +26,18 @@ export async function getPortfolioData() {
         resumeUrl: "/resume.pdf", // will be verified with Resume model below
       };
     }
-    const dbResume = await prisma.resume.findFirst();
+    let dbResume = await prisma.resume.findUnique({
+      where: { id: "resume-singleton" },
+    });
+    if (!dbResume) {
+      dbResume = await prisma.resume.findFirst();
+    }
     if (dbResume) {
-      hero.resumeUrl = dbResume.fileUrl;
+      if (dbResume.fileUrl.startsWith("data:")) {
+        hero.resumeUrl = "/api/resume";
+      } else {
+        hero.resumeUrl = dbResume.fileUrl;
+      }
     }
   } catch (e) {
     console.warn("Failed to fetch Hero content, using static fallback:", e);

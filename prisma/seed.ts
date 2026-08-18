@@ -245,6 +245,7 @@ async function main() {
   if (resumeCount === 0) {
     await prisma.resume.create({
       data: {
+        id: "resume-singleton",
         fileUrl: "/resume.pdf",
       },
     });
